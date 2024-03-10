@@ -35,9 +35,22 @@ fn handle_events() -> io::Result<bool> {
 }
 
 fn ui(frame: &mut Frame) {
+    let main_layout = Layout::new(
+        Direction::Horizontal,
+        [
+            Constraint::Percentage(30),
+            Constraint::Percentage(70),
+        ],
+    )
+    .split(frame.size());
     frame.render_widget(
-        Paragraph::new("Hello World!")
-            .block(Block::default().title("Greeting").borders(Borders::ALL)),
-        frame.size(),
+        Paragraph::new("todo but text boxes in here")
+            .block(Block::default().title("search and replace box").borders(Borders::ALL)),
+        main_layout[0],
+    );
+    frame.render_widget(
+        Paragraph::new("i'm a file")
+            .block(Block::default().title("see file changes box").borders(Borders::ALL)),
+        main_layout[1],
     );
 }
