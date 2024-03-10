@@ -59,15 +59,13 @@
 use crossterm::{
     event::{self, DisableMouseCapture, EnableMouseCapture, Event, KeyCode},
     execute,
-    terminal::{
-        disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen,
-    },
+    terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
 };
-use std::{error::Error, io};
 use ratatui::{
     backend::{Backend, CrosstermBackend},
     Terminal,
 };
+use std::{error::Error, io};
 use tui_input::backend::crossterm::EventHandler;
 mod backend;
 use backend::ui;
@@ -120,9 +118,7 @@ fn run_app<B: Backend>(terminal: &mut Terminal<B>, mut app: App) -> io::Result<(
                     KeyCode::Char('q') => {
                         return Ok(());
                     }
-                    KeyCode::Tab => {
-                        app.box_num = (app.box_num + 1) % 2
-                    }
+                    KeyCode::Tab => app.box_num = (app.box_num + 1) % 2,
                     _ => {}
                 },
                 InputMode::Editing => match key.code {

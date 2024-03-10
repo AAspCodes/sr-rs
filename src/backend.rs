@@ -36,7 +36,7 @@ fn layout(f: &mut Frame) -> (Rc<[Rect]>, Rc<[Rect]>) {
         .margin(2)
         .constraints(
             [
-                Constraint::Length(1),
+                Constraint::Length(4),
                 Constraint::Length(3),
                 Constraint::Length(3),
                 Constraint::Min(1),
@@ -48,40 +48,44 @@ fn layout(f: &mut Frame) -> (Rc<[Rect]>, Rc<[Rect]>) {
     let right_side = Layout::default()
         .direction(Direction::Horizontal)
         .margin(2)
-        .constraints([
-                     Constraint::Min(0),
-        ])
+        .constraints([Constraint::Min(0)])
         .split(outer[1]);
     (left_side, right_side)
 }
 
 fn help_message(f: &mut Frame, app: &App, chunks: &Rc<[Rect]>) {
-    let (msg, style) = match app.input_mode {
+    let (mut text, style) = match app.input_mode {
         InputMode::Normal => (
-            vec![
-                Span::raw("Press "),
-                Span::styled("q", Style::default().add_modifier(Modifier::BOLD)),
-                Span::raw(" to exit, "),
-                Span::styled("e", Style::default().add_modifier(Modifier::BOLD)),
-                Span::raw(" to start editing."),
-            ],
+            Text::from(vec![
+                Line::from(vec![
+                    Span::styled("q", Style::default().add_modifier(Modifier::BOLD)),
+                    Span::raw(" to exit"),
+                ]),
+                Line::from(vec![
+                    Span::styled("e", Style::default().add_modifier(Modifier::BOLD)),
+                    Span::raw(" to start editing"),
+                ]),
+                Line::from(vec![
+                    Span::styled("<Tab>", Style::default().add_modifier(Modifier::BOLD)),
+                    Span::raw(" to switch input boxes"),
+                ]),
+            ]),
             Style::default().add_modifier(Modifier::RAPID_BLINK),
         ),
         InputMode::Editing => (
-            vec![
+            Text::from(Line::from(vec![
                 Span::raw("Press "),
                 Span::styled("Esc", Style::default().add_modifier(Modifier::BOLD)),
                 Span::raw(" to stop editing, "),
                 Span::styled("Enter", Style::default().add_modifier(Modifier::BOLD)),
                 Span::raw(" to record the message"),
-            ],
+            ])),
             Style::default(),
         ),
     };
-    let mut text = Text::from(Line::from(msg));
     text = text.patch_style(style);
-    let help_message = Paragraph::new(text);
-    f.render_widget(help_message, chunks[0]);
+    let message = Paragraph::new(text).block(Block::default());
+    f.render_widget(message, chunks[0]);
 }
 
 fn input_boxes(f: &mut Frame, app: &App, chunks: &Rc<[Rect]>, scroll: usize) {
@@ -139,6 +143,6 @@ fn side_window(f: &mut Frame, chunks: &Rc<[Rect]>) {
     f.render_widget(
         Paragraph::new("Hello World!")
             .block(Block::default().title("Greeting").borders(Borders::ALL)),
-            chunks[0],
-            );
+        chunks[0],
+    );
 }
