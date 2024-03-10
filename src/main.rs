@@ -1,7 +1,6 @@
 use crossterm::{
-    event::{self, DisableMouseCapture, EnableMouseCapture, Event, KeyCode},
-    execute,
-    terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
+    event::{self, Event, KeyCode},
+    terminal,
 };
 use ratatui::{
     backend::{Backend, CrosstermBackend},
@@ -15,29 +14,36 @@ use backend::ui;
 mod app;
 use app::App;
 
+mod tui;
+use tui::{init, restore};
 mod input_enums;
 use input_enums::{InputBox, InputMode};
 
 fn main() -> Result<(), Box<dyn Error>> {
     // setup terminal
-    enable_raw_mode()?;
-    let mut stdout = io::stdout();
-    execute!(stdout, EnterAlternateScreen, EnableMouseCapture)?;
-    let backend = CrosstermBackend::new(stdout);
-    let mut terminal = Terminal::new(backend)?;
+    let mut terminal = init()?;
+    //enable_raw_mode()?;
+    //let mut stdout = io::stdout();
+    //execute!(stdout, EnterAlternateScreen, EnableMouseCapture)?;
+    //let backend = CrosstermBackend::new(stdout);
+    //let mut terminal = Terminal::new(backend)?;
 
     // create app and run it
     let app = App::default();
     let res = run_app(&mut terminal, app);
 
     // restore terminal
-    disable_raw_mode()?;
-    execute!(
-        terminal.backend_mut(),
-        LeaveAlternateScreen,
-        DisableMouseCapture
-    )?;
-    terminal.show_cursor()?;
+    //disable_raw_mode()?;
+    //execute!(
+    //    terminal.backend_mut(),
+    //    LeaveAlternateScreen,
+    //    DisableMouseCapture
+    //)?;
+    //
+    //
+    //TODO ignore err better
+    let _ = restore();
+    let _ = terminal.show_cursor();
 
     if let Err(err) = res {
         println!("{:?}", err)
