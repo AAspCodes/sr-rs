@@ -8,3 +8,4 @@ rust-version = "1.76"
 [dependencies]
 crossterm = "0.27.0"
 ratatui = "0.26.1"
+tui-input = "0.8.0"
