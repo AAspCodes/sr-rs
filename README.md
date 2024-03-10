@@ -10,8 +10,8 @@ tui based search and replace built with rust
 ## Todo
 
 - [x] basic layout
-- [ ] add file path box
-- [ ] make text not disappear after pressing enter
+- [x] add file path box
+- [x] make text not disappear after pressing enter
 - [ ] add clear keybind in normal mode
     - [ ] clear input boxes
 - [ ] add search keybind in normal mode
