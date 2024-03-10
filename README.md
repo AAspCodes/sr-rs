@@ -31,7 +31,6 @@ tui based search and replace built with rust
 - [ ] precommit hook that runs cargo fmt
 - [ ] implement basic CI pipline
 - [ ] add some tool to automatically bump semver based on commit msg
-- [ ] 
 
 
 ## Strech Goals Todos
