@@ -1,5 +1,7 @@
 use std::rc::Rc;
 
+use crate::App;
+use crate::{InputBox, InputMode};
 use ratatui::{
     backend::Backend,
     layout::{Constraint, Direction, Layout, Rect},
@@ -8,9 +10,7 @@ use ratatui::{
     widgets::{Block, Borders, Paragraph},
     Frame,
 };
-
-use crate::App;
-use crate::{InputBox, InputMode};
+use strum::IntoEnumIterator;
 
 pub fn ui<B: Backend>(f: &mut Frame, app: &App) {
     let (left_side, right_side) = layout(f);
@@ -73,13 +73,10 @@ fn help_message(f: &mut Frame, app: &App, chunks: &Rc<[Rect]>) {
             Style::default().add_modifier(Modifier::RAPID_BLINK),
         ),
         InputMode::Editing => (
-            Text::from(Line::from(vec![
-                Span::raw("Press "),
-                Span::styled("Esc", Style::default().add_modifier(Modifier::BOLD)),
-                Span::raw(" to stop editing, "),
-                Span::styled("Enter", Style::default().add_modifier(Modifier::BOLD)),
-                Span::raw(" to record the message"),
-            ])),
+            Text::from(vec![Line::from(vec![
+                Span::styled("<Esc>", Style::default().add_modifier(Modifier::BOLD)),
+                Span::raw(" to stop editing"),
+            ])]),
             Style::default(),
         ),
     };
@@ -104,10 +101,9 @@ fn input_boxes(f: &mut Frame, app: &App, chunks: &Rc<[Rect]>, scroll: usize) {
 
         f.render_widget(input_box, chunks[b.pos() + 1]);
     };
-
-    add_input_box(InputBox::Search);
-    add_input_box(InputBox::Replace);
-    add_input_box(InputBox::Filepath);
+    for input_box in InputBox::iter() {
+        add_input_box(input_box);
+    }
 }
 
 fn set_cursor(f: &mut Frame, app: &App, chunks: &Rc<[Rect]>, scroll: usize) {

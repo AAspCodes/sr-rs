@@ -7,6 +7,7 @@ use ratatui::{
     backend::{Backend, CrosstermBackend},
     Terminal,
 };
+
 use std::{error::Error, io};
 use tui_input::backend::crossterm::EventHandler;
 mod backend;
@@ -14,43 +15,8 @@ use backend::ui;
 mod app;
 use app::App;
 
-enum InputMode {
-    Normal,
-    Editing,
-}
-
-#[derive(PartialEq)]
-enum InputBox {
-    Search,
-    Replace,
-    Filepath,
-}
-
-impl InputBox {
-    fn next(self: InputBox) -> InputBox {
-        match self {
-            InputBox::Search => InputBox::Replace,
-            InputBox::Replace => InputBox::Filepath,
-            InputBox::Filepath => InputBox::Search,
-        }
-    }
-
-    fn pos(self: &InputBox) -> usize {
-        match self {
-            InputBox::Search => 0 as usize,
-            InputBox::Replace => 1 as usize,
-            InputBox::Filepath => 2 as usize,
-        }
-    }
-
-    fn title(self: &InputBox) -> String {
-        match self {
-            InputBox::Search => "Search".into(),
-            InputBox::Replace => "Replace".into(),
-            InputBox::Filepath => "FilePath".into(),
-        }
-    }
-}
+mod input_enums;
+use input_enums::{InputBox, InputMode};
 
 fn main() -> Result<(), Box<dyn Error>> {
     // setup terminal
