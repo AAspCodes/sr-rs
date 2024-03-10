@@ -10,14 +10,15 @@ use ratatui::{
 };
 
 use crate::App;
-use crate::InputMode;
+use crate::{InputBox, InputMode};
 
 pub fn ui<B: Backend>(f: &mut Frame, app: &App) {
     let (left_side, right_side) = layout(f);
     help_message(f, app, &left_side);
 
     let width = left_side[0].width.max(3) - 3; // keep 2 for borders and 1 for cursor
-    let scroll = app.input.visual_scroll(width as usize);
+    let scroll = app.input[0].visual_scroll(width as usize); // TODO fix visual scroll later for a per
+                                                             // input box version
     input_boxes(f, app, &left_side, scroll);
 
     set_cursor(f, app, &left_side, scroll);
@@ -39,8 +40,7 @@ fn layout(f: &mut Frame) -> (Rc<[Rect]>, Rc<[Rect]>) {
                 Constraint::Length(4),
                 Constraint::Length(3),
                 Constraint::Length(3),
-                Constraint::Min(1),
-                Constraint::Min(1),
+                Constraint::Length(3),
             ]
             .as_ref(),
         )
@@ -89,36 +89,25 @@ fn help_message(f: &mut Frame, app: &App, chunks: &Rc<[Rect]>) {
 }
 
 fn input_boxes(f: &mut Frame, app: &App, chunks: &Rc<[Rect]>, scroll: usize) {
-    let search_input = Paragraph::new(if app.box_num == 0 {
-        app.input.value()
-    } else {
-        ""
-    })
-    .style(match app.box_num {
-        0 => match app.input_mode {
-            InputMode::Editing => Style::default().fg(Color::Yellow),
-            InputMode::Normal => Style::default().fg(Color::LightMagenta),
-        },
-        _ => Style::default(),
-    })
-    .scroll((0, scroll as u16))
-    .block(Block::default().borders(Borders::ALL).title("Search"));
-    let replace_input = Paragraph::new(if app.box_num == 1 {
-        app.input.value()
-    } else {
-        ""
-    })
-    .style(match app.box_num {
-        1 => match app.input_mode {
-            InputMode::Editing => Style::default().fg(Color::Yellow),
-            InputMode::Normal => Style::default().fg(Color::LightMagenta),
-        },
-        _ => Style::default(),
-    })
-    .scroll((0, scroll as u16))
-    .block(Block::default().borders(Borders::ALL).title("Replace"));
-    f.render_widget(search_input, chunks[1]);
-    f.render_widget(replace_input, chunks[2]);
+    let mut add_input_box = |b: InputBox| {
+        let input_box = Paragraph::new(app.input[b.pos()].value())
+            .style(if b == app.input_box {
+                match app.input_mode {
+                    InputMode::Editing => Style::default().fg(Color::Yellow),
+                    InputMode::Normal => Style::default().fg(Color::LightMagenta),
+                }
+            } else {
+                Style::default()
+            })
+            .scroll((0, scroll as u16))
+            .block(Block::default().borders(Borders::ALL).title(b.title()));
+
+        f.render_widget(input_box, chunks[b.pos() + 1]);
+    };
+
+    add_input_box(InputBox::Search);
+    add_input_box(InputBox::Replace);
+    add_input_box(InputBox::Filepath);
 }
 
 fn set_cursor(f: &mut Frame, app: &App, chunks: &Rc<[Rect]>, scroll: usize) {
@@ -131,9 +120,12 @@ fn set_cursor(f: &mut Frame, app: &App, chunks: &Rc<[Rect]>, scroll: usize) {
             // Make the cursor visible and ask ratatui to put it at the specified coordinates after rendering
             f.set_cursor(
                 // Put cursor past the end of the input text
-                chunks[1].x + ((app.input.visual_cursor()).max(scroll) - scroll) as u16 + 1,
+                chunks[1].x
+                    + ((app.input[app.input_box.pos()].visual_cursor()).max(scroll) - scroll)
+                        as u16
+                    + 1,
                 // Move one line down, from the border to the input line
-                chunks[app.box_num as usize + 1].y + 1,
+                chunks[app.input_box.pos() + 1].y + 1,
             )
         }
     }

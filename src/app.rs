@@ -1,27 +1,22 @@
 use tui_input::Input;
 
-use crate::InputMode;
+use crate::{InputBox, InputMode};
 
 /// App holds the state of the application
 pub struct App {
     /// Current value of the input box
-    pub input: Input,
+    pub input: Vec<Input>,
     /// Current input mode
     pub input_mode: InputMode,
-    pub box_num: u8,
-    /// History of recorded messages
-    pub messages1: Vec<String>,
-    pub messages2: Vec<String>,
+    pub input_box: InputBox,
 }
 
 impl Default for App {
     fn default() -> App {
         App {
-            input: Input::default(),
+            input: vec![Input::default(), Input::default(), Input::default()],
             input_mode: InputMode::Normal,
-            box_num: 0,
-            messages1: Vec::new(),
-            messages2: Vec::new(),
+            input_box: InputBox::Search,
         }
     }
 }
