@@ -13,7 +13,7 @@ pub enum InputBox {
 }
 
 impl InputBox {
-    pub fn next(self: InputBox) -> InputBox {
+    pub fn next(self: &InputBox) -> InputBox {
         match self {
             InputBox::Search => InputBox::Replace,
             InputBox::Replace => InputBox::Filepath,

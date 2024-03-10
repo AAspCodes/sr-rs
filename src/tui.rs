@@ -11,14 +11,14 @@ use ratatui::prelude::*;
 pub type Tui = Terminal<CrosstermBackend<Stdout>>;
 
 /// Initialize the terminal
-pub fn init() -> io::Result<Tui> {
+pub fn setup_terminal() -> io::Result<Tui> {
     execute!(stdout(), EnterAlternateScreen, EnableMouseCapture)?;
     enable_raw_mode()?;
     Terminal::new(CrosstermBackend::new(stdout()))
 }
 
 /// Restore the terminal to its original state
-pub fn restore() -> io::Result<()> {
+pub fn restore_terminal() -> io::Result<()> {
     execute!(stdout(), LeaveAlternateScreen, DisableMouseCapture)?;
     disable_raw_mode()?;
     Ok(())

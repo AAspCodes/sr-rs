@@ -2,6 +2,9 @@ use std::rc::Rc;
 
 use crate::App;
 use crate::{InputBox, InputMode};
+
+use crate::search_replace::list_files;
+
 use ratatui::{
     backend::Backend,
     layout::{Constraint, Direction, Layout, Rect},
@@ -22,7 +25,7 @@ pub fn ui<B: Backend>(f: &mut Frame, app: &App) {
     input_boxes(f, app, &left_side, scroll);
 
     set_cursor(f, app, &left_side, scroll);
-    side_window(f, &right_side);
+    side_window(f, app, &right_side);
 }
 
 fn layout(f: &mut Frame) -> (Rc<[Rect]>, Rc<[Rect]>) {
@@ -127,10 +130,18 @@ fn set_cursor(f: &mut Frame, app: &App, chunks: &Rc<[Rect]>, scroll: usize) {
     }
 }
 
-fn side_window(f: &mut Frame, chunks: &Rc<[Rect]>) {
+fn side_window(f: &mut Frame, app: &App, chunks: &Rc<[Rect]>) {
+    let mut search_glob: String = String::new();
+    app.input[InputBox::Filepath.pos()]
+        .value()
+        .clone_into(&mut search_glob);
+    let res = list_files(search_glob);
+    let mut content: Vec<Line> = vec![];
+    for line in res.iter() {
+        content.push(Line::raw(line))
+    }
     f.render_widget(
-        Paragraph::new("Hello World!")
-            .block(Block::default().title("Greeting").borders(Borders::ALL)),
+        Paragraph::new(content).block(Block::default().title("Greeting").borders(Borders::ALL)),
         chunks[0],
     );
 }

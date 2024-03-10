@@ -1,11 +1,5 @@
-use crossterm::{
-    event::{self, Event, KeyCode},
-    terminal,
-};
-use ratatui::{
-    backend::{Backend, CrosstermBackend},
-    Terminal,
-};
+use crossterm::event::{self, Event, KeyCode};
+use ratatui::{backend::Backend, Terminal};
 
 use std::{error::Error, io};
 use tui_input::backend::crossterm::EventHandler;
@@ -15,35 +9,22 @@ mod app;
 use app::App;
 
 mod tui;
-use tui::{init, restore};
+use tui::{restore_terminal, setup_terminal};
 mod input_enums;
 use input_enums::{InputBox, InputMode};
 
+mod search_replace;
+
 fn main() -> Result<(), Box<dyn Error>> {
     // setup terminal
-    let mut terminal = init()?;
-    //enable_raw_mode()?;
-    //let mut stdout = io::stdout();
-    //execute!(stdout, EnterAlternateScreen, EnableMouseCapture)?;
-    //let backend = CrosstermBackend::new(stdout);
-    //let mut terminal = Terminal::new(backend)?;
+    let mut terminal = setup_terminal()?;
 
     // create app and run it
     let app = App::default();
     let res = run_app(&mut terminal, app);
 
-    // restore terminal
-    //disable_raw_mode()?;
-    //execute!(
-    //    terminal.backend_mut(),
-    //    LeaveAlternateScreen,
-    //    DisableMouseCapture
-    //)?;
-    //
-    //
-    //TODO ignore err better
-    let _ = restore();
-    let _ = terminal.show_cursor();
+    restore_terminal()?;
+    terminal.show_cursor()?;
 
     if let Err(err) = res {
         println!("{:?}", err)
