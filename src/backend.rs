@@ -135,7 +135,11 @@ fn side_window(f: &mut Frame, app: &App, chunks: &Rc<[Rect]>) {
     app.input[InputBox::Filepath.pos()]
         .value()
         .clone_into(&mut search_glob);
-    let res = list_files(search_glob);
+    let mut search_pattern: String = String::new();
+    app.input[InputBox::Search.pos()]
+        .value()
+        .clone_into(&mut search_pattern);
+    let res = list_files(search_glob, search_pattern);
     let mut content: Vec<Line> = vec![];
     for line in res.iter() {
         content.push(Line::raw(line))
