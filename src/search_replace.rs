@@ -1,40 +1,44 @@
+use glob::glob;
 use std::{process::Command, str};
+
+
+
+
+
+
+pub struct matches {
+    filepath: String,
+    match_start: usize,
+    match_end: usize,
+    matching_line: String,
+}
+
+
 
 pub fn sample_text() -> String {
     "Hello World".into()
 }
 
 #[allow(dead_code)]
-pub fn search(path_g: String, search_pattern:String) -> Vec<String> {
+pub fn search(path_g: String, search_pattern: String) -> Vec<String> {
     let mut path_glob = String::from("./*");
     println!("tiger{}", path_g);
     if path_g != String::from("") {
-        path_glob = path_g; 
+        path_glob = path_g;
     }
     list_files(path_glob, search_pattern)
 }
 
 pub fn list_files(path_glob: String, search_pattern: String) -> Vec<String> {
-    let output = Command::new("rg")
-        .arg(search_pattern)
-        .arg("-g")
-        .arg(path_glob)
-        .arg("--hidden")
-        .output()
-        .expect("Failed to find files");
-    //let output = Command::new("sh")
-    //    .arg("-c")
-    //    .arg(format!("find {} -type f", path_glob))
-    //    .output()
-    //    .expect("Failed to find files");
-    let convert = |buf: &Vec<u8>| -> Vec<String> {
-        let stdout_str = str::from_utf8(buf).expect("Failed to convert stdout to string");
-        // Split the string slice on '\n' and collect into a Vec<String>
-        let lines: Vec<String> = stdout_str.lines().map(String::from).collect();
-        lines
-    };
-    let mut ret = convert(&output.stderr);
-    ret.extend(convert(&output.stdout));
+    let mut ret: Vec<String> = vec![];
+    for p in glob(path_glob.as_str()).expect("glob failed") {
+        match p {
+            Ok(path) => ret.push(path.to_string_lossy().into_owned()),
+            _ => {}
+        }
+    }
+    // read files in ret, and get line found
+
     ret
 }
 
@@ -91,9 +95,4 @@ mod tests {
         drop(f);
         tdir.close().expect("failed to close dir");
     }
-
-
-
-
-
 }
