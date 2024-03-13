@@ -3,7 +3,7 @@ use std::rc::Rc;
 use crate::App;
 use crate::{InputBox, InputMode};
 
-use crate::search_replace::list_files;
+use crate::search_replace::search;
 
 use ratatui::{
     backend::Backend,
@@ -139,10 +139,10 @@ fn side_window(f: &mut Frame, app: &App, chunks: &Rc<[Rect]>) {
     app.input[InputBox::Search.pos()]
         .value()
         .clone_into(&mut search_pattern);
-    let res = list_files(search_glob, search_pattern);
+    let res = search(search_glob, search_pattern);
     let mut content: Vec<Line> = vec![];
     for line in res.iter() {
-        content.push(Line::raw(line))
+        content.push(Line::raw(line.to_string()))
     }
     f.render_widget(
         Paragraph::new(content).block(Block::default().title("Greeting").borders(Borders::ALL)),
