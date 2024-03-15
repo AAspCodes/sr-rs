@@ -1,5 +1,9 @@
 use core::fmt;
 use glob::glob;
+use ratatui::{
+    style::{Modifier, Style},
+    text::{Line, Span, Text},
+};
 use std::{fs, path::PathBuf};
 
 #[derive(Debug)]
@@ -20,8 +24,30 @@ impl fmt::Display for Match {
     }
 }
 
-pub fn sample_text() -> String {
-    "Hello World".into()
+impl Match {
+    pub fn tui_fmt(&self) -> Vec<Line> {
+        let start_byte_index = self
+            .line
+            .char_indices()
+            .nth(self.start)
+            .map_or(0, |(i, _)| i);
+        let end_byte_index = self
+            .line
+            .char_indices()
+            .nth(self.end)
+            .map_or(self.line.len(), |(i, _)| i);
+
+        let spans = vec![
+            Span::raw(&self.line[..start_byte_index]),
+            Span::styled(
+                &self.line[start_byte_index..end_byte_index],
+                Style::default().add_modifier(Modifier::BOLD),
+            ),
+            Span::raw(&self.line[end_byte_index..]),
+        ];
+
+        vec![Span::raw(&self.filepath).into(), spans.into()]
+    }
 }
 
 #[allow(dead_code)]

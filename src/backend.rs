@@ -139,13 +139,14 @@ fn side_window(f: &mut Frame, app: &App, chunks: &Rc<[Rect]>) {
     app.input[InputBox::Search.pos()]
         .value()
         .clone_into(&mut search_pattern);
-    let res = search(search_glob, search_pattern);
+    let mut res = search(search_glob, search_pattern);
     let mut content: Vec<Line> = vec![];
     for line in res.iter() {
-        content.push(Line::raw(line.to_string()))
+        content.append(&mut line.tui_fmt())
     }
     f.render_widget(
-        Paragraph::new(content).block(Block::default().title("Greeting").borders(Borders::ALL)),
+        Paragraph::new(Text::from(content))
+            .block(Block::default().title("Greeting").borders(Borders::ALL)),
         chunks[0],
     );
 }

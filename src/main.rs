@@ -13,9 +13,13 @@ use tui::{restore_terminal, setup_terminal};
 mod input_enums;
 use input_enums::{InputBox, InputMode};
 
+mod logging;
+use logging::init_logger;
 mod search_replace;
 
 fn main() -> Result<(), Box<dyn Error>> {
+    init_logger();
+    log::info!("sr is starting up");
     // setup terminal
     let mut terminal = setup_terminal()?;
 
