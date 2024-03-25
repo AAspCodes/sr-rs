@@ -12,6 +12,7 @@ pub struct Match {
     start: usize,
     end: usize,
     line: String,
+    line_num: usize,
 }
 
 impl fmt::Display for Match {
@@ -38,6 +39,7 @@ impl Match {
             .map_or(self.line.len(), |(i, _)| i);
 
         let spans = vec![
+            Span::raw(format!("line: {} \t", self.line_num.to_string())),
             Span::raw(&self.line[..start_byte_index]),
             Span::styled(
                 &self.line[start_byte_index..end_byte_index],
@@ -58,34 +60,37 @@ pub fn search(path_g: String, search_pattern: String) -> Vec<Match> {
         let contents = fs::read_to_string(file_match.clone()).expect("couldn't read file");
         let matches: Vec<(usize, &str)> = contents.match_indices(&search_pattern).collect();
 
-        for (i, _) in matches {
-            let (start, end, line) =
+        for (i, s) in matches {
+            let (line_start, line) =
                 get_line(&contents, i).expect("didn't find it the second time");
             match_list.push(Match {
                 filepath: file_match.clone().to_string_lossy().into(),
-                start,
-                end,
+                start: i - line_start,
+                end: i - line_start + s.len(),
                 line: line.into(),
+                line_num: contents[..line_start].matches("\n").count(),
             });
         }
+    }
+    if match_list.len() > 0 {
+        log::info!("{:?}", match_list);
     }
     match_list
 }
 
-fn get_line(contents: &str, index: usize) -> Option<(usize, usize, &str)> {
+fn get_line(contents: &str, index: usize) -> Option<(usize, &str)> {
     if index >= contents.len() {
         return None; // Index out of bounds
     }
 
     // Find the start of the line by searching backwards for a newline character
-    let start = contents[..index].rfind('\n').map_or(0, |pos| pos + 1);
-
+    let line_start = contents[..index].rfind('\n').map_or(0, |pos| pos+1);
     // Find the end of the line by searching forwards for a newline character
-    let end = contents[index..]
+    let line_end = contents[index..]
         .find('\n')
         .map_or(contents.len(), |pos| index + pos);
 
-    Some((start, end, &contents[start..end]))
+    Some((line_start, &contents[line_start..line_end]))
 }
 
 pub fn list_files(path_glob: &str) -> Vec<PathBuf> {
