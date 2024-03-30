@@ -22,7 +22,20 @@ mod search;
 
 fn main() -> Result<(), Box<dyn Error>> {
     init_logger()?;
+    let sr_logging_art = "
+######################
+    ######  ######
+   #      # #     #
+   #        #     #
+    ######  ######
+          # #   # 
+   #      # #    # 
+    ######  #     #
+######################
+ ";
     log::info!("sr is starting up");
+    log::info!("{}", sr_logging_art);
+
     // setup terminal
     let mut terminal = setup_terminal()?;
 
