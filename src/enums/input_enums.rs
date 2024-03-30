@@ -5,6 +5,7 @@ pub enum InputMode {
     Editing,
 }
 
+/// Represents the different types of input boxes.
 #[derive(PartialEq, EnumIter)]
 pub enum InputBox {
     Search,
@@ -13,27 +14,30 @@ pub enum InputBox {
 }
 
 impl InputBox {
-    pub fn next(self: &InputBox) -> InputBox {
+    /// Returns the next input box in the sequence.
+    pub fn next(&self) -> Self {
         match self {
-            InputBox::Search => InputBox::Replace,
-            InputBox::Replace => InputBox::Filepath,
-            InputBox::Filepath => InputBox::Search,
+            Self::Search => Self::Replace,
+            Self::Replace => Self::Filepath,
+            Self::Filepath => Self::Search,
         }
     }
 
-    pub fn pos(self: &InputBox) -> usize {
+    /// Returns the position of the input box.
+    pub fn pos(&self) -> usize {
         match self {
-            InputBox::Search => 0 as usize,
-            InputBox::Replace => 1 as usize,
-            InputBox::Filepath => 2 as usize,
+            Self::Search => 0,
+            Self::Replace => 1,
+            Self::Filepath => 2,
         }
     }
 
-    pub fn title(self: &InputBox) -> String {
+    /// Returns the title of the input box.
+    pub fn title(&self) -> String {
         match self {
-            InputBox::Search => "Search".into(),
-            InputBox::Replace => "Replace".into(),
-            InputBox::Filepath => "FilePath".into(),
+            Self::Search => "Search".into(),
+            Self::Replace => "Replace".into(),
+            Self::Filepath => "FilePath".into(),
         }
     }
 }
