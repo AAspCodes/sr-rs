@@ -84,3 +84,27 @@ impl Match {
         self.replacement = replacement;
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_get_byte_indices_with_multibyte_chars() {
+        let m = Match {
+            filepath: String::from("test.rs"),
+            line: String::from("Hello, 😀 world!"),
+            line_num: 1,
+            start: 7,
+            end: 8,
+            replacement: String::from(""),
+        };
+
+        let (byte_start, byte_end) = m.get_byte_indices();
+        // The start index should be 13, not 7, because "😀" takes 4 bytes.
+        assert_eq!(byte_start, 13);
+        // The end index should also be 13, because the end index is exclusive.
+        assert_eq!(byte_end, 13);
+    }
+
+}
