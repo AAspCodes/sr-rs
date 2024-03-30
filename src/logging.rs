@@ -1,17 +1,14 @@
+use log::SetLoggerError;
 use simplelog::*;
 use std::fs::File;
 
-pub fn init_logger() {
-    // Initialize WriteLogger to log to a file
+pub fn init_logger() -> Result<(), SetLoggerError>{
     WriteLogger::init(
-        LevelFilter::Info,               // Set the log level (e.g., Info, Warn, Error)
-        Config::default(),               // Use default configuration
-        File::create("sr.log").unwrap(), // Specify the log file
-    )
-    .unwrap();
+        LevelFilter::Info, 
+        Config::default(),    
+        File::create("sr.log").unwrap(),
+    )?;
 
-    // Example log messages
-    log::info!("This is an info message");
-    log::warn!("This is a warning message");
-    log::error!("This is an error message");
+    log::info!("Initializing logger");
+    Ok(())
 }

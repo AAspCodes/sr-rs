@@ -19,7 +19,7 @@ mod match_struct;
 mod search_replace;
 
 fn main() -> Result<(), Box<dyn Error>> {
-    init_logger();
+    init_logger()?;
     log::info!("sr is starting up");
     // setup terminal
     let mut terminal = setup_terminal()?;

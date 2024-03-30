@@ -10,6 +10,7 @@ pub struct Match {
     filepath: String,
     start: usize,
     end: usize,
+    replacement: String,
     line: String,
     line_num: usize,
 }
@@ -25,11 +26,19 @@ impl fmt::Display for Match {
 }
 
 impl Match {
-    pub fn new(filepath: String, start: usize, end: usize, line: String, line_num: usize) -> Self {
+    pub fn new(
+        filepath: String,
+        start: usize,
+        end: usize,
+        replacement: String,
+        line: String,
+        line_num: usize,
+    ) -> Self {
         Self {
             filepath,
             start,
             end,
+            replacement,
             line,
             line_num,
         }
@@ -42,7 +51,11 @@ impl Match {
             Span::raw(&self.line[..start_byte_index]),
             Span::styled(
                 &self.line[start_byte_index..end_byte_index],
-                Style::default().add_modifier(Modifier::BOLD),
+                Style::default().fg(ratatui::style::Color::Red),
+            ),
+            Span::styled(
+                &self.replacement,
+                Style::default().fg(ratatui::style::Color::Green),
             ),
             Span::raw(&self.line[end_byte_index..]),
         ];
@@ -65,5 +78,9 @@ impl Match {
             .0;
 
         (start_byte_index, end_byte_index)
+    }
+
+    pub fn set_replacement(&mut self, replacement: String) {
+        self.replacement = replacement;
     }
 }

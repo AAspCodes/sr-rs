@@ -131,9 +131,13 @@ fn set_cursor(f: &mut Frame, app: &App, chunks: &Rc<[Rect]>, scroll: usize) {
 }
 
 fn side_window(f: &mut Frame, app: &App, chunks: &Rc<[Rect]>) {
-    let search_glob = app.input[InputBox::Filepath.pos()].value().to_string();
     let search_pattern = app.input[InputBox::Search.pos()].value().to_string();
-    let res = search(search_glob, search_pattern);
+    let replacement = app.input[InputBox::Replace.pos()].value().to_string();
+    let search_glob = app.input[InputBox::Filepath.pos()].value().to_string();
+    let mut res: Vec<crate::match_struct::Match> = search(search_glob, search_pattern);
+    for m in res.iter_mut() {
+        m.set_replacement(replacement.clone());
+    }
     let content: Vec<Line> = res.iter().flat_map(|line| line.tui_fmt()).collect();
     let block = Block::default().title("Greeting").borders(Borders::ALL);
     let paragraph = Paragraph::new(Text::from(content)).block(block);

@@ -54,6 +54,7 @@ fn find_matches_in_file(contents: &str, search_pattern: &str, file_path: &PathBu
             file_path.to_string_lossy().into_owned(),
             i - line_start,
             i - line_start + s.len(),
+            "".into(),
             line.into(),
             contents[..line_start].matches("\n").count(),
         ));
