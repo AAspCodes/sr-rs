@@ -52,7 +52,6 @@ impl Match {
     }
 }
 
-#[allow(dead_code)]
 pub fn search(path_g: String, search_pattern: String) -> Vec<Match> {
     let file_matches = list_files(path_g.as_str());
     let mut match_list: Vec<Match> = vec![];

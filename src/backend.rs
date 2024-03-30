@@ -131,22 +131,11 @@ fn set_cursor(f: &mut Frame, app: &App, chunks: &Rc<[Rect]>, scroll: usize) {
 }
 
 fn side_window(f: &mut Frame, app: &App, chunks: &Rc<[Rect]>) {
-    let mut search_glob: String = String::new();
-    app.input[InputBox::Filepath.pos()]
-        .value()
-        .clone_into(&mut search_glob);
-    let mut search_pattern: String = String::new();
-    app.input[InputBox::Search.pos()]
-        .value()
-        .clone_into(&mut search_pattern);
-    let mut res = search(search_glob, search_pattern);
-    let mut content: Vec<Line> = vec![];
-    for line in res.iter() {
-        content.append(&mut line.tui_fmt())
-    }
-    f.render_widget(
-        Paragraph::new(Text::from(content))
-            .block(Block::default().title("Greeting").borders(Borders::ALL)),
-        chunks[0],
-    );
+    let search_glob = app.input[InputBox::Filepath.pos()].value().to_string();
+    let search_pattern = app.input[InputBox::Search.pos()].value().to_string();
+    let res = search(search_glob, search_pattern);
+    let content: Vec<Line> = res.iter().flat_map(|line| line.tui_fmt()).collect();
+    let block = Block::default().title("Greeting").borders(Borders::ALL);
+    let paragraph = Paragraph::new(Text::from(content)).block(block);
+    f.render_widget(paragraph, chunks[0]);
 }
