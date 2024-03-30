@@ -1,4 +1,4 @@
-use crossterm::event::{self, Event, KeyCode};
+use crossterm::event::{self, Event, KeyCode, KeyEvent};
 use ratatui::{backend::Backend, Terminal};
 
 use std::{error::Error, io};
@@ -58,31 +58,32 @@ fn run_app<B: Backend>(terminal: &mut Terminal<B>, mut app: App) -> io::Result<(
         terminal.draw(|f| ui_func::<B>(f, &app))?;
 
         if let Event::Key(key) = event::read()? {
-            match app.input_mode {
-                InputMode::Normal => match key.code {
-                    KeyCode::Char('e') => {
-                        app.input_mode = InputMode::Editing;
-                    }
-                    KeyCode::Char('q') => {
-                        return Ok(());
-                    }
-                    KeyCode::Tab => {
-                        app.input_box_selection = app.input_box_selection.next();
-                    }
-                    _ => {}
-                },
-                InputMode::Editing => match key.code {
-                    KeyCode::Enter => {
-                        // TODO send input contents to right side, as temp, later trigger search
-                    }
-                    KeyCode::Esc => {
-                        app.input_mode = InputMode::Normal;
-                    }
-                    _ => {
-                        app.input[app.input_box_selection.pos()].handle_event(&Event::Key(key));
-                    }
-                },
-            }
+            handle_event(&mut app, key);
         }
+    }
+}
+
+fn handle_event(app: &mut App, key: KeyEvent) {
+    match app.input_mode {
+        InputMode::Normal => match key.code {
+            KeyCode::Char('e') => {
+                app.input_mode = InputMode::Editing;
+            }
+            KeyCode::Char('q') => {
+                return;
+            }
+            KeyCode::Tab => {
+                app.input_box_selection = app.input_box_selection.next();
+            }
+            _ => {}
+        },
+        InputMode::Editing => match key.code {
+            KeyCode::Esc => {
+                app.input_mode = InputMode::Normal;
+            }
+            _ => {
+                app.input[app.input_box_selection.pos()].handle_event(&Event::Key(key));
+            }
+        },
     }
 }
