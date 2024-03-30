@@ -4,10 +4,11 @@ use crate::{InputBox, InputMode};
 
 /// App holds the state of the application
 pub struct App {
-    /// Current value of the input box
+    /// Current value of the input boxes
     pub input: Vec<Input>,
     /// Current input mode
     pub input_mode: InputMode,
+    /// Current input box selection
     pub input_box_selection: InputBox,
 }
 
