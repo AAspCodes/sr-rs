@@ -106,5 +106,4 @@ mod tests {
         // The end index should also be 13, because the end index is exclusive.
         assert_eq!(byte_end, 13);
     }
-
 }
