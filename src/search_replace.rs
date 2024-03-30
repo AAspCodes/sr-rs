@@ -1,64 +1,7 @@
-use core::fmt;
 use glob::glob;
-use ratatui::{
-    style::{Modifier, Style},
-    text::{Line, Span},
-};
 use std::{fs, path::PathBuf};
 
-#[derive(Debug)]
-pub struct Match {
-    filepath: String,
-    start: usize,
-    end: usize,
-    line: String,
-    line_num: usize,
-}
-
-impl fmt::Display for Match {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(
-            f,
-            "Filepath: {}, Start: {}, End: {}, Line: {}",
-            self.filepath, self.start, self.end, self.line
-        )
-    }
-}
-
-impl Match {
-    pub fn tui_fmt(&self) -> Vec<Line> {
-        let (start_byte_index, end_byte_index) = self.get_byte_indices();
-
-        let spans = vec![
-            Span::raw(format!("line: {} \t", self.line_num)),
-            Span::raw(&self.line[..start_byte_index]),
-            Span::styled(
-                &self.line[start_byte_index..end_byte_index],
-                Style::default().add_modifier(Modifier::BOLD),
-            ),
-            Span::raw(&self.line[end_byte_index..]),
-        ];
-
-        vec![Span::raw(&self.filepath).into(), spans.into()]
-    }
-
-    fn get_byte_indices(&self) -> (usize, usize) {
-        let start_byte_index = self
-            .line
-            .char_indices()
-            .nth(self.start)
-            .unwrap_or((0, ' '))
-            .0;
-        let end_byte_index = self
-            .line
-            .char_indices()
-            .nth(self.end)
-            .unwrap_or((self.line.len(), ' '))
-            .0;
-
-        (start_byte_index, end_byte_index)
-    }
-}
+use crate::match_struct::Match;
 
 pub fn search(path_g: String, search_pattern: String) -> Vec<Match> {
     if search_pattern.is_empty() {
@@ -107,13 +50,13 @@ fn find_matches_in_file(contents: &str, search_pattern: &str, file_path: &PathBu
             }
         };
 
-        matches.push(Match {
-            filepath: file_path.to_string_lossy().into_owned(),
-            start: i - line_start,
-            end: i - line_start + s.len(),
-            line: line.into(),
-            line_num: contents[..line_start].matches("\n").count(),
-        });
+        matches.push(Match::new(
+            file_path.to_string_lossy().into_owned(),
+            i - line_start,
+            i - line_start + s.len(),
+            line.into(),
+            contents[..line_start].matches("\n").count(),
+        ));
     }
 
     matches
@@ -193,5 +136,48 @@ mod tests {
         let (line_start, line) = get_line(contents, 5).unwrap();
         assert_eq!(line_start, 0);
         assert_eq!(line, "Hello");
+    }
+
+    #[test]
+    fn test_find_matches_in_file() {
+        let contents = "Hello, world!";
+        let search_pattern = "world";
+        let file_path = PathBuf::from("/path/to/file");
+
+        let matches = find_matches_in_file(contents, search_pattern, &file_path);
+        assert_eq!(matches.len(), 1);
+        assert_eq!(matches[0].filepath, "/path/to/file");
+        assert_eq!(matches[0].start, 7);
+        assert_eq!(matches[0].end, 12);
+        assert_eq!(matches[0].line, "Hello, world!");
+    }
+
+    #[test]
+    fn test_read_file_contents() {
+        let dir = tempdir().unwrap();
+        let file_path = dir.path().join("test.txt");
+        let mut file = File::create(&file_path).unwrap();
+        writeln!(file, "Hello, world!").unwrap();
+
+        let contents = read_file_contents(&file_path);
+        assert_eq!(contents.unwrap(), "Hello, world!\n");
+    }
+
+    #[test]
+    fn test_search() {
+        let dir = tempdir().unwrap();
+        let file_path = dir.path().join("test.txt");
+        let mut file = File::create(&file_path).unwrap();
+        writeln!(file, "Hello, world!").unwrap();
+
+        let matches = search(
+            file_path.to_string_lossy().into_owned(),
+            "world".to_string(),
+        );
+        assert_eq!(matches.len(), 1);
+        assert_eq!(matches[0].filepath, file_path.to_string_lossy());
+        assert_eq!(matches[0].start, 7);
+        assert_eq!(matches[0].end, 12);
+        assert_eq!(matches[0].line, "Hello, world!");
     }
 }

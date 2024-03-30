@@ -15,6 +15,7 @@ use input_enums::{InputBox, InputMode};
 
 mod logging;
 use logging::init_logger;
+mod match_struct;
 mod search_replace;
 
 fn main() -> Result<(), Box<dyn Error>> {
