@@ -100,7 +100,11 @@ fn input_boxes(f: &mut Frame, app: &App, chunks: &Rc<[Rect]>, scroll: usize) {
     }
 }
 
-fn create_input_box_widget<'a, 'b>(app: &'a App, input_box: &'b InputBox, scroll: usize) -> Paragraph<'a> {
+fn create_input_box_widget<'a, 'b>(
+    app: &'a App,
+    input_box: &'b InputBox,
+    scroll: usize,
+) -> Paragraph<'a> {
     let style = match app.input_mode {
         InputMode::Editing => Style::default().fg(Color::Yellow),
         InputMode::Normal => Style::default().fg(Color::LightMagenta),
@@ -115,7 +119,11 @@ fn create_input_box_widget<'a, 'b>(app: &'a App, input_box: &'b InputBox, scroll
     Paragraph::new(app.input[input_box.pos().clone()].value())
         .style(style)
         .scroll((0, scroll as u16))
-        .block(Block::default().borders(Borders::ALL).title(input_box.title().clone()))
+        .block(
+            Block::default()
+                .borders(Borders::ALL)
+                .title(input_box.title().clone()),
+        )
 }
 
 fn set_cursor(f: &mut Frame, app: &App, chunks: &Rc<[Rect]>, scroll: usize) {
@@ -129,8 +137,8 @@ fn set_cursor(f: &mut Frame, app: &App, chunks: &Rc<[Rect]>, scroll: usize) {
             f.set_cursor(
                 // Put cursor past the end of the input text
                 chunks[1].x
-                    + ((app.input[app.input_box_selection.pos()].visual_cursor()).max(scroll) - scroll)
-                        as u16
+                    + ((app.input[app.input_box_selection.pos()].visual_cursor()).max(scroll)
+                        - scroll) as u16
                     + 1,
                 // Move one line down, from the border to the input line
                 chunks[app.input_box_selection.pos() + 1].y + 1,
