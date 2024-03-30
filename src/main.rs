@@ -3,20 +3,22 @@ use ratatui::{backend::Backend, Terminal};
 
 use std::{error::Error, io};
 use tui_input::backend::crossterm::EventHandler;
-mod backend;
-use backend::ui;
+mod ui;
+use ui::ui as ui_func;
+// todo rename ui_func
+
 mod app;
 use app::App;
 
 mod tui;
 use tui::{restore_terminal, setup_terminal};
-mod input_enums;
-use input_enums::{InputBox, InputMode};
+mod enums;
+use enums::input_enums::{InputBox, InputMode};
 
 mod logging;
 use logging::init_logger;
-mod match_struct;
-mod search_replace;
+mod models;
+mod search;
 
 fn main() -> Result<(), Box<dyn Error>> {
     init_logger()?;
@@ -40,7 +42,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 
 fn run_app<B: Backend>(terminal: &mut Terminal<B>, mut app: App) -> io::Result<()> {
     loop {
-        terminal.draw(|f| ui::<B>(f, &app))?;
+        terminal.draw(|f| ui_func::<B>(f, &app))?;
 
         if let Event::Key(key) = event::read()? {
             match app.input_mode {

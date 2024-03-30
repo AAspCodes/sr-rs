@@ -1,7 +1,7 @@
 use glob::glob;
 use std::{fs, path::PathBuf};
 
-use crate::match_struct::Match;
+use crate::models::match_struct::Match;
 
 pub fn search(path_g: String, search_pattern: String) -> Vec<Match> {
     if search_pattern.is_empty() {
