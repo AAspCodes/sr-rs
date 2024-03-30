@@ -69,30 +69,12 @@ pub fn search(path_g: String, search_pattern: String) -> Vec<Match> {
     let mut match_list: Vec<Match> = vec![];
 
     for file_match in &file_matches {
-        let contents = match fs::read_to_string(file_match) {
-            Ok(contents) => contents,
-            Err(_) => {
-                log::error!("Couldn't read file: {:?}", file_match.to_str());
-                continue;
-            }
-        };
-
-        for (i, s) in contents.match_indices(&search_pattern) {
-            let (line_start, line) = match get_line(&contents, i) {
-                Ok((line_start, line)) => (line_start, line),
-                Err(_) => {
-                    log::error!("Didn't find it the second time");
-                    continue;
-                }
-            };
-
-            match_list.push(Match {
-                filepath: file_match.to_string_lossy().into_owned(),
-                start: i - line_start,
-                end: i - line_start + s.len(),
-                line: line.into(),
-                line_num: contents[..line_start].matches("\n").count(),
-            });
+        if let Ok(contents) = read_file_contents(file_match) {
+            match_list.append(&mut find_matches_in_file(
+                &contents,
+                &search_pattern,
+                file_match,
+            ));
         }
     }
 
@@ -101,6 +83,40 @@ pub fn search(path_g: String, search_pattern: String) -> Vec<Match> {
     }
 
     match_list
+}
+
+fn read_file_contents(file_path: &PathBuf) -> Result<String, ()> {
+    match fs::read_to_string(file_path) {
+        Ok(contents) => Ok(contents),
+        Err(_) => {
+            log::error!("Couldn't read file: {:?}", file_path.to_str());
+            Err(())
+        }
+    }
+}
+
+fn find_matches_in_file(contents: &str, search_pattern: &str, file_path: &PathBuf) -> Vec<Match> {
+    let mut matches = vec![];
+
+    for (i, s) in contents.match_indices(search_pattern) {
+        let (line_start, line) = match get_line(contents, i) {
+            Ok((line_start, line)) => (line_start, line),
+            Err(_) => {
+                log::error!("Didn't find it the second time");
+                continue;
+            }
+        };
+
+        matches.push(Match {
+            filepath: file_path.to_string_lossy().into_owned(),
+            start: i - line_start,
+            end: i - line_start + s.len(),
+            line: line.into(),
+            line_num: contents[..line_start].matches("\n").count(),
+        });
+    }
+
+    matches
 }
 
 fn get_line(contents: &str, index: usize) -> Result<(usize, &str), ()> {
