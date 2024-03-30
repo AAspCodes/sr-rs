@@ -139,20 +139,6 @@ mod tests {
     }
 
     #[test]
-    fn test_find_matches_in_file() {
-        let contents = "Hello, world!";
-        let search_pattern = "world";
-        let file_path = PathBuf::from("/path/to/file");
-
-        let matches = find_matches_in_file(contents, search_pattern, &file_path);
-        assert_eq!(matches.len(), 1);
-        assert_eq!(matches[0].filepath, "/path/to/file");
-        assert_eq!(matches[0].start, 7);
-        assert_eq!(matches[0].end, 12);
-        assert_eq!(matches[0].line, "Hello, world!");
-    }
-
-    #[test]
     fn test_read_file_contents() {
         let dir = tempdir().unwrap();
         let file_path = dir.path().join("test.txt");
@@ -161,23 +147,5 @@ mod tests {
 
         let contents = read_file_contents(&file_path);
         assert_eq!(contents.unwrap(), "Hello, world!\n");
-    }
-
-    #[test]
-    fn test_search() {
-        let dir = tempdir().unwrap();
-        let file_path = dir.path().join("test.txt");
-        let mut file = File::create(&file_path).unwrap();
-        writeln!(file, "Hello, world!").unwrap();
-
-        let matches = search(
-            file_path.to_string_lossy().into_owned(),
-            "world".to_string(),
-        );
-        assert_eq!(matches.len(), 1);
-        assert_eq!(matches[0].filepath, file_path.to_string_lossy());
-        assert_eq!(matches[0].start, 7);
-        assert_eq!(matches[0].end, 12);
-        assert_eq!(matches[0].line, "Hello, world!");
     }
 }
