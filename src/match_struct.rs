@@ -1,7 +1,7 @@
 use std::fmt;
 
 use ratatui::{
-    style::{Modifier, Style},
+    style::Style,
     text::{Line, Span},
 };
 

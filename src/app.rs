@@ -8,7 +8,7 @@ pub struct App {
     pub input: Vec<Input>,
     /// Current input mode
     pub input_mode: InputMode,
-    pub input_box: InputBox,
+    pub input_box_selection: InputBox,
 }
 
 impl Default for App {
@@ -16,7 +16,7 @@ impl Default for App {
         App {
             input: vec![Input::default(), Input::default(), Input::default()],
             input_mode: InputMode::Normal,
-            input_box: InputBox::Search,
+            input_box_selection: InputBox::Search,
         }
     }
 }

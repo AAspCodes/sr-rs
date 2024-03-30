@@ -52,7 +52,7 @@ fn run_app<B: Backend>(terminal: &mut Terminal<B>, mut app: App) -> io::Result<(
                         return Ok(());
                     }
                     KeyCode::Tab => {
-                        app.input_box = app.input_box.next();
+                        app.input_box_selection = app.input_box_selection.next();
                     }
                     _ => {}
                 },
@@ -64,7 +64,7 @@ fn run_app<B: Backend>(terminal: &mut Terminal<B>, mut app: App) -> io::Result<(
                         app.input_mode = InputMode::Normal;
                     }
                     _ => {
-                        app.input[app.input_box.pos()].handle_event(&Event::Key(key));
+                        app.input[app.input_box_selection.pos()].handle_event(&Event::Key(key));
                     }
                 },
             }
