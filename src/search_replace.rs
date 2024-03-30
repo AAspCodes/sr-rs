@@ -119,11 +119,16 @@ fn get_line(contents: &str, index: usize) -> Result<(usize, &str), ()> {
 }
 
 pub fn list_files(path_glob: &str) -> Vec<PathBuf> {
-    glob(path_glob)
-        .expect("Failed to read glob pattern")
-        .filter_map(Result::ok) // Convert iterator of Result<PathBuf, glob::GlobError> to iterator of PathBuf, ignoring errors.
-        .filter(|p| p.is_file()) // Keep only PathBufs that are files.
-        .collect()
+    match glob(path_glob) {
+        Ok(paths) => paths
+            .filter_map(Result::ok) // Convert iterator of Result<PathBuf, glob::GlobError> to iterator of PathBuf, ignoring errors.
+            .filter(|p| p.is_file()) // Keep only PathBufs that are files.
+            .collect(),
+        Err(e) => {
+            log::error!("Failed to read glob pattern: {}", e);
+            vec![]
+        }
+    }
 }
 
 #[cfg(test)]
