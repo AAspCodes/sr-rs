@@ -133,48 +133,49 @@ pub fn list_files(path_glob: &str) -> Vec<PathBuf> {
 
 #[cfg(test)]
 mod tests {
-    use std::fs::File;
-
-    use tempfile::{tempdir, TempDir};
-
     use super::*;
+    use std::fs::File;
+    use std::io::Write;
+    use tempfile::tempdir;
 
-    fn create_temp_file(name: &String, dir: &TempDir) -> File {
-        let file_path = dir.path().join(name);
-        let file = File::create(file_path).expect("Failed to create temp file");
-        file
+    #[test]
+    fn test_list_files_valid_pattern() {
+        let dir = tempdir().unwrap();
+        let file_path = dir.path().join("test.txt");
+        let mut file = File::create(&file_path).unwrap();
+        writeln!(file, "Hello, world!").unwrap();
+
+        let files = list_files(&format!("{}/*.txt", dir.path().to_string_lossy()));
+        assert_eq!(files.len(), 1);
+        assert_eq!(files[0], file_path);
     }
 
     #[test]
-    fn test_list_files() {
-        let tdir = tempdir().expect("failed to create temp dir");
-        let afile = String::from("afile.txt");
-        let f = create_temp_file(&afile, &tdir);
-        let glob_path = format!("{:}/.*", tdir.path().to_str().expect("failed to get str"));
-        let res = list_files(&glob_path);
-        println!("{:?}", res);
-
-        drop(f);
-        tdir.close().expect("failed to close dir");
+    fn test_list_files_invalid_pattern() {
+        let files = list_files("invalid_pattern[");
+        assert!(files.is_empty());
     }
 
     #[test]
-    fn test_search() {
-        let tdir = tempdir().expect("failed to create temp dir");
-        let afile = String::from("afile.txt");
-        let f = create_temp_file(&afile, &tdir);
-        let glob_path = format!("{:}/.*", tdir.path().to_str().expect("failed to get str"));
-        let res = search(glob_path, String::from(".*"));
-        println!("{:?}", res);
+    fn test_get_line_valid_index() {
+        let contents = "Hello\nWorld\n!";
+        let (line_start, line) = get_line(contents, 6).unwrap();
+        assert_eq!(line_start, 6);
+        assert_eq!(line, "World");
+    }
 
-        //let expected: Vec<String> = vec![tdir
-        //    .path()
-        //    .join(afile)
-        //    .to_str()
-        //    .expect("failed to convert path to str")
-        //    .into()];
-        //assert_eq!(res, expected);
-        drop(f);
-        tdir.close().expect("failed to close dir");
+    #[test]
+    fn test_get_line_index_out_of_bounds() {
+        let contents = "Hello\nWorld\n!";
+        let result = get_line(contents, 50);
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_get_line_at_newline() {
+        let contents = "Hello\nWorld\n!";
+        let (line_start, line) = get_line(contents, 5).unwrap();
+        assert_eq!(line_start, 0);
+        assert_eq!(line, "Hello");
     }
 }
