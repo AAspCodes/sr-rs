@@ -53,12 +53,14 @@ impl Match {
 }
 
 pub fn search(path_g: String, search_pattern: String) -> Vec<Match> {
+    if search_pattern.is_empty() {
+        return vec![];
+    }
     let file_matches = list_files(path_g.as_str());
     let mut match_list: Vec<Match> = vec![];
     for file_match in file_matches {
         let contents = fs::read_to_string(file_match.clone()).expect("couldn't read file");
         let matches: Vec<(usize, &str)> = contents.match_indices(&search_pattern).collect();
-
         for (i, s) in matches {
             let (line_start, line) =
                 get_line(&contents, i).expect("didn't find it the second time");
@@ -93,7 +95,7 @@ fn get_line(contents: &str, index: usize) -> Option<(usize, &str)> {
 }
 
 pub fn list_files(path_glob: &str) -> Vec<PathBuf> {
-    glob(path_glob) // todo pass &str to list_files instead
+    glob(path_glob)
         .expect("Failed to read glob pattern")
         .filter_map(Result::ok) // Convert iterator of Result<PathBuf, glob::GlobError> to iterator of PathBuf, ignoring errors.
         .filter(|p| p.is_file()) // Keep only PathBufs that are files.
