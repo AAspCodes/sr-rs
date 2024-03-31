@@ -16,7 +16,7 @@ tui based search and replace built with rust
     - [ ] clear input boxes
 - [ ] add search keybind in normal mode
 - [ ] search for text matching pattern in current directory
-- [ ] search based on file pattern
+- [x] handle glob file paths
 - [x] preview changes based on replace
 - [x] implement file edit on replace
 - [ ] improve vim integration
@@ -34,7 +34,7 @@ tui based search and replace built with rust
 
 
 ## Quality of Life Todo
-- [ ] precommit hook that runs cargo fmt
+- [x] precommit hook that runs cargo fmt
 - [x] implement basic CI pipline
 - [ ] add some tool to automatically bump semver based on commit msg
 - [ ] add linter
