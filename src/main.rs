@@ -1,5 +1,6 @@
 use crossterm::event::{self, Event, KeyCode, KeyEvent};
 use ratatui::{backend::Backend, Terminal};
+use search::replace;
 use std::{error::Error, io};
 use tui_input::backend::crossterm::EventHandler;
 
@@ -82,7 +83,13 @@ fn handle_event(app: &mut App, key: KeyEvent) {
             KeyCode::Tab => {
                 app.input_box_selection = app.input_box_selection.next();
             }
-            _ => {}
+            KeyCode::Char('r') => {}
+            _ => match replace(app) {
+                Ok(_) => (),
+                Err(e) => {
+                    log::error!("Failed to replace: {}", e);
+                }
+            },
         },
         InputMode::Editing => match key.code {
             KeyCode::Esc => {

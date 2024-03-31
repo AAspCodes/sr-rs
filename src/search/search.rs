@@ -52,6 +52,8 @@ fn find_matches_in_file(contents: &str, search_pattern: &str, file_path: &PathBu
 
         matches.push(Match::new(
             file_path.to_string_lossy().into_owned(),
+            i,
+            s.len(),
             i - line_start,
             i - line_start + s.len(),
             "".into(),

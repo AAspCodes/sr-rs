@@ -5,11 +5,13 @@ use ratatui::{
     text::{Line, Span},
 };
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Match {
     filepath: String,
-    start: usize,
-    end: usize,
+    file_index_start: usize,
+    match_length: usize,
+    start_on_line: usize,
+    end_on_line: usize,
     replacement: String,
     line: String,
     line_num: usize,
@@ -20,7 +22,7 @@ impl fmt::Display for Match {
         write!(
             f,
             "Filepath: {}, Start: {}, End: {}, Line: {}",
-            self.filepath, self.start, self.end, self.line
+            self.filepath, self.start_on_line, self.end_on_line, self.line
         )
     }
 }
@@ -28,16 +30,20 @@ impl fmt::Display for Match {
 impl Match {
     pub fn new(
         filepath: String,
-        start: usize,
-        end: usize,
+        file_index_start: usize,
+        match_length: usize,
+        start_on_line: usize,
+        end_on_line: usize,
         replacement: String,
         line: String,
         line_num: usize,
     ) -> Self {
         Self {
             filepath,
-            start,
-            end,
+            file_index_start,
+            match_length,
+            start_on_line,
+            end_on_line,
             replacement,
             line,
             line_num,
@@ -67,13 +73,13 @@ impl Match {
         let start_byte_index = self
             .line
             .char_indices()
-            .nth(self.start)
+            .nth(self.start_on_line)
             .unwrap_or((0, ' '))
             .0;
         let end_byte_index = self
             .line
             .char_indices()
-            .nth(self.end)
+            .nth(self.end_on_line)
             .unwrap_or((self.line.len(), ' '))
             .0;
 
@@ -82,6 +88,19 @@ impl Match {
 
     pub fn set_replacement(&mut self, replacement: String) {
         self.replacement = replacement;
+    }
+
+    pub fn get_filepath(&self) -> &str {
+        &self.filepath
+    }
+    pub fn get_replacement(&self) -> &str {
+        &self.replacement
+    }
+    pub fn get_file_index_start(&self) -> usize {
+        self.file_index_start
+    }
+    pub fn get_match_length(&self) -> usize {
+        self.match_length
     }
 }
 
@@ -93,17 +112,19 @@ mod tests {
     fn test_get_byte_indices_with_multibyte_chars() {
         let m = Match {
             filepath: String::from("test.rs"),
+            file_index_start: 0,
+            match_length: 1,
             line: String::from("Hello, 😀 world!"),
-            line_num: 1,
-            start: 7,
-            end: 8,
+            line_num: 0,
+            start_on_line: 7,
+            end_on_line: 8,
             replacement: String::from(""),
         };
 
         let (byte_start, byte_end) = m.get_byte_indices();
-        // The start index should be 13, not 7, because "😀" takes 4 bytes.
-        assert_eq!(byte_start, 13);
-        // The end index should also be 13, because the end index is exclusive.
-        assert_eq!(byte_end, 13);
+        // The start index should be 7
+        assert_eq!(byte_start, 7);
+        // the end index should be 11 not 8, because "😀" takes 4 bytes.
+        assert_eq!(byte_end, 11);
     }
 }
