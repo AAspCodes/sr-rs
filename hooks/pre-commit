@@ -1,0 +1,8 @@
+#!/bin/sh
+# Pre-commit hook for Rust formatting
+cargo fmt -- --check
+if [ $? -ne 0 ]; then
+    echo "Code is not properly formatted."
+    echo "Run 'cargo fmt' to format your code."
+    exit 1
+fi

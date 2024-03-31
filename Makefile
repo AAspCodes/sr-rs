@@ -8,3 +8,6 @@ fmt:
 
 build:
 	cargo build
+
+setup:
+	./scripts/setup.sh
