@@ -1,26 +1,31 @@
 use crossterm::event::{self, Event, KeyCode, KeyEvent};
 use ratatui::{backend::Backend, Terminal};
-
 use std::{error::Error, io};
 use tui_input::backend::crossterm::EventHandler;
-mod ui;
-use ui::ui as ui_func;
-// todo rename ui_func
+
+use app::App;
+use enums::input_enums::{InputBox, InputMode};
+use logging::init_logger;
+use tui::{restore_terminal, setup_terminal};
+use ui::ui as user_interface;
 
 mod app;
-use app::App;
-
-mod tui;
-use tui::{restore_terminal, setup_terminal};
 mod enums;
-use enums::input_enums::{InputBox, InputMode};
-
 mod logging;
-use logging::init_logger;
 mod models;
 mod search;
+mod tui;
+mod ui;
 
-fn main() -> Result<(), Box<dyn Error>> {
+fn main() {
+    if let Err(e) = run() {
+        eprintln!("Application error: {}", e);
+        std::process::exit(1);
+    }
+}
+
+/// Main function that starts the application
+fn run() -> Result<(), Box<dyn Error>> {
     init_logger()?;
     let sr_logging_art = "
 ######################
@@ -53,9 +58,10 @@ fn main() -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
+/// Runs the application with the given terminal and app
 fn run_app<B: Backend>(terminal: &mut Terminal<B>, mut app: App) -> io::Result<()> {
     loop {
-        terminal.draw(|f| ui_func::<B>(f, &app))?;
+        terminal.draw(|f| user_interface::<B>(f, &app))?;
 
         if let Event::Key(key) = event::read()? {
             handle_event(&mut app, key);
@@ -63,6 +69,7 @@ fn run_app<B: Backend>(terminal: &mut Terminal<B>, mut app: App) -> io::Result<(
     }
 }
 
+/// Handles key events in the application
 fn handle_event(app: &mut App, key: KeyEvent) {
     match app.input_mode {
         InputMode::Normal => match key.code {
