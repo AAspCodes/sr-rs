@@ -112,4 +112,115 @@ mod tests {
 
         Ok(())
     }
+
+    #[test]
+    fn test_overlapping_replace() -> std::io::Result<()> {
+        // Setup: Create a temporary directory
+        let temp_dir = tempfile::tempdir()?;
+        let temp_dir_path = temp_dir.path();
+
+        // Create a test file with some content
+        let test_file_name = "test_file.txt";
+        let test_file_path = temp_dir_path.join(test_file_name);
+        let mut file = File::create(&test_file_path)?;
+        writeln!(file, "hehe world, hehehehehe world")?;
+
+        // Create a test App
+        let mut app = App::default();
+        set_input_value(&mut app, InputBox::Search, "hehe".into());
+        set_input_value(&mut app, InputBox::Replace, "Rust".into());
+        set_input_value(&mut app, InputBox::Filepath, test_file_path.to_str().unwrap().into());
+
+        // Call the function to test
+        replace(&app)?;
+
+        // Check that the file content has been replaced correctly
+        let content = fs::read_to_string(&test_file_path)?;
+        assert_eq!(content, "Rust world, RustRusthe world\n");
+
+        // The temporary directory is automatically deleted when temp_dir goes out of scope
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_replace_complex() -> std::io::Result<()> {
+        // Setup: Create a temporary directory
+        let temp_dir = tempfile::tempdir()?;
+        let temp_dir_path = temp_dir.path();
+
+        // Create test files with various content
+        let file_names = vec!["test_file1.txt", "test_file2.txt", "test_file3.txt"];
+        let contents = vec![
+            "Hello, world!\nHello, world!\n世界Hello, 世界world!",
+            "Hello, world!world!世界\nHello, 😀world!world!",
+            "Hello, 世界!\nHello, 世界!"
+        ];
+
+        for (file_name, content) in file_names.iter().zip(&contents) {
+            let file_path = temp_dir_path.join(file_name);
+            let mut file = File::create(&file_path)?;
+            writeln!(file, "{}", content)?;
+        }
+
+        // Create a test App
+        let mut app = App::default();
+        set_input_value(&mut app, InputBox::Search, "world".into());
+        set_input_value(&mut app, InputBox::Replace, "Rust".into());
+
+        // Set the file path to a glob pattern that matches all files in the temp directory
+        let glob_pattern = format!("{}/*", temp_dir_path.to_str().unwrap());
+        set_input_value(&mut app, InputBox::Filepath, glob_pattern);
+
+        // Call the function to test
+        replace(&app)?;
+
+        // Check that the file content has been replaced correctly
+        let expected_contents = vec![
+            "Hello, Rust!\nHello, Rust!\n世界Hello, 世界Rust!",
+            "Hello, Rust!Rust!世界\nHello, 😀Rust!Rust!",
+            "Hello, 世界!\nHello, 世界!"
+        ];
+
+        for (file_name, expected_content) in file_names.iter().zip(&expected_contents) {
+            let file_path = temp_dir_path.join(file_name);
+            let content = fs::read_to_string(&file_path)?;
+            assert_eq!(content, format!("{}\n", expected_content));
+        }
+
+        // The temporary directory is automatically deleted when temp_dir goes out of scope
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_replace_unicode() -> std::io::Result<()> {
+        // Setup: Create a temporary directory
+        let temp_dir = tempfile::tempdir()?;
+        let temp_dir_path = temp_dir.path();
+
+        // Create a test file with Unicode content
+        let test_file_name = "test_file.txt";
+        let test_file_path = temp_dir_path.join(test_file_name);
+        let mut file = File::create(&test_file_path)?;
+        writeln!(file, "Hello, 世界!")?;
+
+        // Create a test App
+        let mut app = App::default();
+        set_input_value(&mut app, InputBox::Search, "世界".into());
+        set_input_value(&mut app, InputBox::Replace, "😀".into());
+        set_input_value(&mut app, InputBox::Filepath, test_file_path.to_str().unwrap().into());
+
+        // Call the function to test
+        replace(&app)?;
+
+        // Check that the file content has been replaced correctly
+        let content = fs::read_to_string(&test_file_path)?;
+        assert_eq!(content, "Hello, 😀!\n");
+
+        // The temporary directory is automatically deleted when temp_dir goes out of scope
+
+        Ok(())
+    }
+
 }
