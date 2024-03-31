@@ -1,4 +1,4 @@
-use crossterm::event::{self, Event, KeyCode, KeyEvent};
+use crossterm::event::{self, Event, KeyCode};
 use ratatui::{backend::Backend, Terminal};
 use search::replace;
 use std::{error::Error, io};
@@ -59,45 +59,44 @@ fn run() -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
-/// Runs the application with the given terminal and app
 fn run_app<B: Backend>(terminal: &mut Terminal<B>, mut app: App) -> io::Result<()> {
     loop {
         terminal.draw(|f| user_interface::<B>(f, &app))?;
 
         if let Event::Key(key) = event::read()? {
-            handle_event(&mut app, key);
+            match app.input_mode {
+                InputMode::Normal => match key.code {
+                    KeyCode::Char('e') => {
+                        app.input_mode = InputMode::Editing;
+                    }
+                    KeyCode::Char('q') => {
+                        return Ok(());
+                    }
+                    KeyCode::Tab => {
+                        app.input_box_selection = app.input_box_selection.next();
+                    }
+                    KeyCode::Char('r') => {
+                        match replace(&app) {
+                            Err(e) => {
+                                log::error!("Failed to replace: {}", e);
+                            }
+                            Ok(_) => {
+                                log::info!("Successfully replaced matches");
+                            }
+                        }
+                    }
+                    _ => {}
+                },
+                InputMode::Editing => match key.code {
+                    KeyCode::Esc => {
+                        app.input_mode = InputMode::Normal;
+                    }
+                    _ => {
+                        app.input[app.input_box_selection.pos()].handle_event(&Event::Key(key));
+                    }
+                },
+            }
         }
     }
 }
 
-/// Handles key events in the application
-fn handle_event(app: &mut App, key: KeyEvent) {
-    match app.input_mode {
-        InputMode::Normal => match key.code {
-            KeyCode::Char('e') => {
-                app.input_mode = InputMode::Editing;
-            }
-            KeyCode::Char('q') => {
-                return;
-            }
-            KeyCode::Tab => {
-                app.input_box_selection = app.input_box_selection.next();
-            }
-            KeyCode::Char('r') => {}
-            _ => match replace(app) {
-                Ok(_) => (),
-                Err(e) => {
-                    log::error!("Failed to replace: {}", e);
-                }
-            },
-        },
-        InputMode::Editing => match key.code {
-            KeyCode::Esc => {
-                app.input_mode = InputMode::Normal;
-            }
-            _ => {
-                app.input[app.input_box_selection.pos()].handle_event(&Event::Key(key));
-            }
-        },
-    }
-}
