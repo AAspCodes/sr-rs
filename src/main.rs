@@ -75,16 +75,14 @@ fn run_app<B: Backend>(terminal: &mut Terminal<B>, mut app: App) -> io::Result<(
                     KeyCode::Tab => {
                         app.input_box_selection = app.input_box_selection.next();
                     }
-                    KeyCode::Char('r') => {
-                        match replace(&app) {
-                            Err(e) => {
-                                log::error!("Failed to replace: {}", e);
-                            }
-                            Ok(_) => {
-                                log::info!("Successfully replaced matches");
-                            }
+                    KeyCode::Char('r') => match replace(&app) {
+                        Err(e) => {
+                            log::error!("Failed to replace: {}", e);
                         }
-                    }
+                        Ok(_) => {
+                            log::info!("Successfully replaced matches");
+                        }
+                    },
                     _ => {}
                 },
                 InputMode::Editing => match key.code {
@@ -99,4 +97,3 @@ fn run_app<B: Backend>(terminal: &mut Terminal<B>, mut app: App) -> io::Result<(
         }
     }
 }
-
