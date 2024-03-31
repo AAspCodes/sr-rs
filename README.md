@@ -17,12 +17,12 @@ tui based search and replace built with rust
 - [ ] add search keybind in normal mode
 - [ ] search for text matching pattern in current directory
 - [ ] search based on file pattern
-- [ ] show changes based on replaced
-- [ ] implement file edit on replace
+- [x] preview changes based on replace
+- [x] implement file edit on replace
 - [ ] improve vim integration
     - [ ] should show error if file has unsaved changes open in vim
     - [ ] should refresh vim
-- [ ] replace all on replace list
+- [x] replace all on replace list
 - [ ] replace one at a time
 - [ ] remove some from replace list
 - [ ] hide some help text behind ? keybind
@@ -35,7 +35,7 @@ tui based search and replace built with rust
 
 ## Quality of Life Todo
 - [ ] precommit hook that runs cargo fmt
-- [ ] implement basic CI pipline
+- [x] implement basic CI pipline
 - [ ] add some tool to automatically bump semver based on commit msg
 - [ ] add linter
     - [ ] rust
