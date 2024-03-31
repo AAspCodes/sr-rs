@@ -34,15 +34,58 @@ fn help_message(f: &mut Frame, app: &App, chunks: &Rc<[Rect]>) {
                     Span::raw(" to exit"),
                 ]),
                 Line::from(vec![
-                    Span::styled("e", Style::default().add_modifier(Modifier::BOLD)),
+                    Span::styled("i", Style::default().add_modifier(Modifier::BOLD)),
                     Span::raw(" to start editing"),
                 ]),
                 Line::from(vec![
-                    Span::styled("<Tab>", Style::default().add_modifier(Modifier::BOLD)),
-                    Span::raw(" to switch input boxes"),
+                    Span::styled(
+                        "j",
+                        Style::default().add_modifier(Modifier::BOLD),
+                    ),
+                    Span::raw(" to go down"),
+                ]),
+                Line::from(vec![
+                    Span::styled(
+                        "k",
+                        Style::default().add_modifier(Modifier::BOLD),
+                    ),
+                    Span::raw(" to go up"),
                 ]),
             ]),
             Style::default().add_modifier(Modifier::RAPID_BLINK),
+        ),
+        InputMode::Refine => (
+            Text::from(vec![
+                Line::from(vec![
+                    Span::styled("q", Style::default().add_modifier(Modifier::BOLD)),
+                    Span::raw(" to exit"),
+                ]),
+                Line::from(vec![
+                    Span::styled("<Tab>", Style::default().add_modifier(Modifier::BOLD)),
+                    Span::raw(" to switch back to refine search"),
+                ]),
+                Line::from(vec![
+                    Span::styled("j", Style::default().add_modifier(Modifier::BOLD)),
+                    Span::raw(" to go down"),
+                ]),
+                Line::from(vec![
+                    Span::styled("k", Style::default().add_modifier(Modifier::BOLD)),
+                    Span::raw(" to go up"),
+                ]),
+                Line::from(vec![
+                    Span::styled("d", Style::default().add_modifier(Modifier::BOLD)),
+                    Span::raw(" to remove a match"),
+                ]),
+                Line::from(vec![
+                    Span::styled("r", Style::default().add_modifier(Modifier::BOLD)),
+                    Span::raw(" to replace a match"),
+                ]),
+                Line::from(vec![
+                    Span::styled("a", Style::default().add_modifier(Modifier::BOLD)),
+                    Span::raw(" to replace all matches"),
+                ]),
+            ]),
+            Style::default(),
         ),
         InputMode::Editing => (
             Text::from(vec![Line::from(vec![
@@ -71,7 +114,7 @@ fn create_input_box_widget<'a, 'b>(
 ) -> Paragraph<'a> {
     let style = match app.input_mode {
         InputMode::Editing => Style::default().fg(Color::Yellow),
-        InputMode::Normal => Style::default().fg(Color::LightMagenta),
+        InputMode::Normal | InputMode::Refine => Style::default().fg(Color::LightMagenta),
     };
 
     let style = if input_box == &app.input_box_selection {

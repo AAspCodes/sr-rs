@@ -3,6 +3,7 @@ use strum::EnumIter;
 pub enum InputMode {
     Normal,
     Editing,
+    Refine,
 }
 
 /// Represents the different types of input boxes.
@@ -20,6 +21,15 @@ impl InputBox {
             Self::Search => Self::Replace,
             Self::Replace => Self::Filepath,
             Self::Filepath => Self::Search,
+        }
+    }
+
+    /// Returns the previous input box in the sequence.
+    pub fn prev(&self) -> Self {
+        match self {
+            Self::Search => Self::Filepath,
+            Self::Replace => Self::Search,
+            Self::Filepath => Self::Replace,
         }
     }
 

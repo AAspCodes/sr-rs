@@ -66,14 +66,20 @@ fn run_app<B: Backend>(terminal: &mut Terminal<B>, mut app: App) -> io::Result<(
         if let Event::Key(key) = event::read()? {
             match app.input_mode {
                 InputMode::Normal => match key.code {
-                    KeyCode::Char('e') => {
+                    KeyCode::Char('i') => {
                         app.input_mode = InputMode::Editing;
+                    }
+                    KeyCode::Tab => {
+                        app.input_mode = InputMode::Refine;
                     }
                     KeyCode::Char('q') => {
                         return Ok(());
                     }
-                    KeyCode::Tab => {
+                    KeyCode::Char('j') => {
                         app.input_box_selection = app.input_box_selection.next();
+                    }
+                    KeyCode::Char('k') => {
+                        app.input_box_selection = app.input_box_selection.prev();
                     }
                     KeyCode::Char('r') => match replace(&app) {
                         Err(e) => {
@@ -83,6 +89,30 @@ fn run_app<B: Backend>(terminal: &mut Terminal<B>, mut app: App) -> io::Result<(
                             log::info!("Successfully replaced matches");
                         }
                     },
+                    _ => {}
+                },
+                InputMode::Refine => match key.code {
+                    KeyCode::Tab => {
+                        app.input_mode = InputMode::Normal;
+                    }
+                    KeyCode::Char('q') => {
+                        return Ok(());
+                    }
+                    KeyCode::Char('j') => {
+                        log::info!("go to next match");
+                    }
+                    KeyCode::Char('k') => {
+                        log::info!("go to previous match");
+                    }
+                    KeyCode::Char('d') => {
+                        log::info!("delete match");
+                    }
+                    KeyCode::Char('r') => {
+                        log::info!("replace match");
+                    }
+                    KeyCode::Char('a') => {
+                        log::info!("replace all matches");
+                    }
                     _ => {}
                 },
                 InputMode::Editing => match key.code {

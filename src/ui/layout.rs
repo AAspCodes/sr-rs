@@ -17,7 +17,7 @@ pub fn layout(f: &mut Frame) -> (Rc<[Rect]>, Rc<[Rect]>) {
         .margin(2)
         .constraints(
             [
-                Constraint::Length(4),
+                Constraint::Length(7),
                 Constraint::Length(3),
                 Constraint::Length(3),
                 Constraint::Length(3),

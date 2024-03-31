@@ -7,10 +7,6 @@ use ratatui::{layout::Rect, Frame};
 
 pub fn set_cursor(f: &mut Frame, app: &App, chunks: &Rc<[Rect]>, scroll: usize) {
     match app.input_mode {
-        InputMode::Normal =>
-            // Hide the cursor. `Frame` does this by default, so we don't need to do anything here
-            {}
-
         InputMode::Editing => {
             // Make the cursor visible and ask ratatui to put it at the specified coordinates after rendering
             f.set_cursor(
@@ -23,5 +19,6 @@ pub fn set_cursor(f: &mut Frame, app: &App, chunks: &Rc<[Rect]>, scroll: usize) 
                 chunks[app.input_box_selection.pos() + 1].y + 1,
             )
         }
+        InputMode::Normal | InputMode::Refine => {}
     }
 }
