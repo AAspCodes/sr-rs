@@ -129,7 +129,11 @@ mod tests {
         let mut app = App::default();
         set_input_value(&mut app, InputBox::Search, "hehe".into());
         set_input_value(&mut app, InputBox::Replace, "Rust".into());
-        set_input_value(&mut app, InputBox::Filepath, test_file_path.to_str().unwrap().into());
+        set_input_value(
+            &mut app,
+            InputBox::Filepath,
+            test_file_path.to_str().unwrap().into(),
+        );
 
         // Call the function to test
         replace(&app)?;
@@ -154,7 +158,7 @@ mod tests {
         let contents = vec![
             "Hello, world!\nHello, world!\n世界Hello, 世界world!",
             "Hello, world!world!世界\nHello, 😀world!world!",
-            "Hello, 世界!\nHello, 世界!"
+            "Hello, 世界!\nHello, 世界!",
         ];
 
         for (file_name, content) in file_names.iter().zip(&contents) {
@@ -179,7 +183,7 @@ mod tests {
         let expected_contents = vec![
             "Hello, Rust!\nHello, Rust!\n世界Hello, 世界Rust!",
             "Hello, Rust!Rust!世界\nHello, 😀Rust!Rust!",
-            "Hello, 世界!\nHello, 世界!"
+            "Hello, 世界!\nHello, 世界!",
         ];
 
         for (file_name, expected_content) in file_names.iter().zip(&expected_contents) {
@@ -209,7 +213,11 @@ mod tests {
         let mut app = App::default();
         set_input_value(&mut app, InputBox::Search, "世界".into());
         set_input_value(&mut app, InputBox::Replace, "😀".into());
-        set_input_value(&mut app, InputBox::Filepath, test_file_path.to_str().unwrap().into());
+        set_input_value(
+            &mut app,
+            InputBox::Filepath,
+            test_file_path.to_str().unwrap().into(),
+        );
 
         // Call the function to test
         replace(&app)?;
@@ -222,5 +230,4 @@ mod tests {
 
         Ok(())
     }
-
 }

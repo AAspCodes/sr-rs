@@ -38,17 +38,11 @@ fn help_message(f: &mut Frame, app: &App, chunks: &Rc<[Rect]>) {
                     Span::raw(" to start editing"),
                 ]),
                 Line::from(vec![
-                    Span::styled(
-                        "j",
-                        Style::default().add_modifier(Modifier::BOLD),
-                    ),
+                    Span::styled("j", Style::default().add_modifier(Modifier::BOLD)),
                     Span::raw(" to go down"),
                 ]),
                 Line::from(vec![
-                    Span::styled(
-                        "k",
-                        Style::default().add_modifier(Modifier::BOLD),
-                    ),
+                    Span::styled("k", Style::default().add_modifier(Modifier::BOLD)),
                     Span::raw(" to go up"),
                 ]),
             ]),
